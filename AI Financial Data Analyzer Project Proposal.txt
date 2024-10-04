@@ -1,0 +1,147 @@
+﻿AI Financial Data Analyzer Project Proposal
+By Hrishikesh Kalyanaraman (hk39), Jack Kelly (jackk7), Emily Keller (ekeller4), Karan Kashyap (karan10)
+
+
+Pitch:
+Our project simplifies financial data analysis by using AI to automatically categorize and summarize expenses, helping users manage their budgets and understand spending patterns without needing advanced accounting knowledge.
+
+
+Functionality
+
+
+1. Users can upload CSV files of financial transactions.
+2. Users can automatically categorize expenses based on transaction data.
+3. Users can view summaries of monthly or yearly spending by category.
+4. Users can generate visual reports, such as pie charts and bar graphs, to better understand their financial health.
+5. Users can set budget limits for categories and receive alerts when close to exceeding them.
+6. Users can view key statistics such as total income, total expenses, and savings over a period.
+7. Users can generate a financial report comparing two different months or years.
+8. Users can receive automated savings suggestions based on spending patterns.
+9. Users can export reports in PDF or Excel format.
+10. Users can input transactions manually if needed.
+
+
+Components
+
+
+1. Backend 
+Our backend processes uploaded financial data, applying machine learning models to categorize transactions and generate helpful summaries and alerts. We’ve chosen Python as our programming language because it’s great for working with data, thanks to powerful libraries like `pandas` for data manipulation and `scikit-learn` for building machine learning models. To create visual reports, we’ll rely on `matplotlib` and `seaborn`. 
+
+
+When it comes to testing, we’re focused on covering all bases. We’ll use unit tests to make sure each individual component—like transaction processing—works correctly. Then we’ll run integration tests to check that everything functions smoothly from start to finish, ensuring the data flows as expected from upload to report generation. The backend will handle file uploads from the frontend, process the data, and return categorized transactions and visual reports via an API. This setup allows us to streamline communication between the two layers, making the system efficient and easy to scale.
+
+
+
+
+2. Frontend
+Our frontend is designed to be simple and intuitive, giving users an easy way to upload financial data, view summaries, set budgets, and download reports. We’ve chosen React with TypeScript for its maintainability and the benefits of strong typing, which helps prevent bugs and makes the code easier to work with. To handle communication between the frontend and backend, we’re using Axios for API calls, and Chart.js helps us create clear visualizations like graphs and charts.We will write tests using React Testing Library, which is industry standard and allows us to programmatically interact with our user interface during tests similarly to how users interact with it in a web browser.
+
+
+
+
+Continuous Integration
+
+
+For testing, we’re sticking to Pytest for the backend and Jest for the frontend. These tools give us reliable coverage to catch bugs early. We’re following standard style guides—PEP 8 for Python and the Airbnb guide for TypeScript—and automating our code checks with `black` and `prettier`, so everything stays clean and consistent. Our goal is to maintain 85% test coverage using `pytest-cov` for the backend and Jest’s built-in coverage for the frontend.
+
+
+When it comes to pull requests, we’ll open a PR as soon as a task is complete and maintain a linear commit history to avoid any conflicts down the line.
+
+
+
+
+Schedule
+
+
+
+
+
+
+
+
+Week
+	Dates
+	Tasks
+	Week 1 
+	(9/25-10/1)
+	Set up project structure and initialize the backend and frontend. Start work on the CSV file upload feature
+	Week 2
+	(10/2-10/8)
+	Implement expense categorization logic using machine learning models. Create simple UI for file uploads.
+	Week 3
+	(10/9-10/15)
+	Develop functionality for generating summaries and visual reports. Display uploaded data on the frontend.
+	Week 4
+	(10/16-10/22)
+	Add the ability to set budgets and track spending progress. Connect budget alerts to the frontend.
+	Week 5
+	(10/23-10/29)
+	Implement features for exporting reports in PDF/Excel. Improve visualizations and graphs.
+	Week 6
+	(10/30-11/5)
+	Develop automated savings suggestions based on spending patterns.
+	Week 7
+	(11/6-11/12)
+	** Create comparison report generation (between different months/years).
+	Week 8
+	(11/13-11/19)
+	Optimize performance and enhance user experience by improving UI responsiveness.
+	Week 9
+	(11/20-11/26):
+	Perform final system testing and fix bugs.
+	* Buffer week for risks and final touches on code and UI.
+
+
+Risks:
+
+
+1. CSV Parsing Issues:
+Risk: CSV files might have formatting inconsistencies (e.g., missing headers, unusual delimiters) that cause errors during file upload.
+Steps if Encountered: We will implement flexible parsing logic using Python’s pandas library, which allows for custom delimiters and handling of missing data. Additionally, we will build a validation layer to notify users when their file format is unsupported.
+Schedule Impact: This could delay CSV file processing by up to 2 days if we encounter unexpected formatting patterns.
+Plan to Address Schedule Impact: We’ll plan to implement this validation early in the development cycle and maintain a flexible buffer week in Week 9. If parsing issues arise, we’ll use the buffer time to adjust, minimizing the impact on other features.
+
+
+2. Machine Learning Model Accuracy:
+Risk: The machine learning model may not accurately categorize expenses, especially if the initial training data is insufficient or poorly labeled.
+Steps if Encountered: We’ll retrain the model using additional labeled data, manually correcting misclassifications to improve accuracy. We will also adjust the algorithm's hyperparameters and implement cross-validation techniques to enhance the model's reliability.
+Schedule Impact: A retraining period could push the categorization feature back by up to 1 week.
+Plan to Address Schedule Impact: While retraining, we’ll prioritize implementing other non-ML features (such as file uploads, visual reports) to stay on track. We’ll allocate more resources to data preparation and labeling early to avoid delays.
+
+
+3. API Integration Issues Between Frontend and Backend:
+Risk: There could be challenges in ensuring seamless communication between the frontend and backend, especially if the API calls don’t handle large financial datasets efficiently or if there are mismatches in data structures.
+Steps if Encountered: We’ll optimize API performance by implementing pagination and asynchronous processing for large data sets. We’ll also ensure early testing of the API to identify any issues with data flow.
+Schedule Impact: Resolving API communication issues could result in a delay of up to 3 days.
+Plan to Address Schedule Impact: We will test API calls in parallel with backend and frontend development, giving us time to troubleshoot issues before the final testing phase. If issues persist, we’ll use the buffer week to resolve integration problems.
+
+
+
+
+
+
+Teamwork
+
+
+We will use Docker to ensure consistent development environments. This reduces friction by avoiding dependency issues across different machines.
+
+
+Work will be divided equally:
+
+
+We will track tasks on a Trello board and assign them based on availability to ensure even workload distribution.
+
+
+For the division of work on the project, we will adopt a collaborative approach to ensure fair distribution and leverage each team member's strengths:
+
+
+Hrishikesh will take the lead on the backend development, focusing on implementing the machine learning models for expense categorization and the logic for generating summaries and alerts.
+
+
+Karan will handle the frontend development, specifically the user interface for uploading files, viewing summaries, and setting budgets. He will also work on integrating visual reports using Chart.js.
+
+
+Jack will be responsible for developing the API that connects the frontend and backend, ensuring smooth communication between the two layers. He will also assist in writing tests to ensure quality throughout the project.
+
+
+Emily will focus on implementing features such as the automated savings suggestions and the report generation for comparing different months or years. She will also contribute to both frontend and backend tasks as needed.
