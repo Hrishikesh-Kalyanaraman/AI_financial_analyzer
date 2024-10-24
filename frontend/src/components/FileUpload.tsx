@@ -37,7 +37,6 @@ function FileUpload() {
       <div style={{ padding: '20px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', maxWidth: '600px', width: '100%' }}>
         <h2 style={{ textAlign: 'center' }}>Upload your Financial CSV</h2>
 
-        {/*File input*/}
         <input 
           type="file" 
           onChange={handleFileChange} 
@@ -45,7 +44,6 @@ function FileUpload() {
         />
         <p style={{ color: '#666' }}>Selected file: {fileName}</p>
 
-        {/*Upload*/}
         <button 
           onClick={handleUpload} 
           disabled={!file || isLoading} 
@@ -62,24 +60,22 @@ function FileUpload() {
           {isLoading ? 'Uploading...' : 'Upload'}
         </button>
 
-        {/*Progress*/}
         {isLoading && (
           <div style={{ margin: '20px 0', backgroundColor: '#e0e0e0', borderRadius: '4px', overflow: 'hidden' }}>
             <div style={{ width: '100%', height: '8px', backgroundColor: '#007bff', animation: 'progress 2s linear infinite' }}></div>
           </div>
         )}
 
-        {response === null && !isLoading && file && (
-          <p style={{ color: 'red', textAlign: 'center' }}>Something went wrong. Please try again.</p>
-        )}
-
-        {/*Display*/}
         {response && (
           <div style={{ marginTop: '20px', backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '8px', border: '1px solid #ddd' }}>
-            <h3>File Uploaded Successfully</h3>
-            <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-              {JSON.stringify(response, null, 2)}
-            </pre>
+            <h3>Expense Categories</h3>
+            {response.map((expense, index) => (
+              <div key={index} style={{ marginBottom: '10px' }}>
+                <strong>Description:</strong> {expense.Description}<br />
+                <strong>Amount:</strong> ${expense.Amount.toFixed(2)}<br />
+                <strong>Category:</strong> {expense.Category}
+              </div>
+            ))}
           </div>
         )}
       </div>
