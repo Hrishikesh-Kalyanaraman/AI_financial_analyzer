@@ -1,5 +1,6 @@
 import React from 'react';
 import FileUpload from './components/FileUpload';
+import BudgetSetting from './components/BudgetSetting';
 import './App.css';
 
 function App() {
@@ -20,7 +21,6 @@ function App() {
       <main>
         <section id="upload" className="app-section">
           <h2>Upload Your Financial Data</h2>
-          <p>Upload your CSV file to analyze transactions and get insights.</p>
           <FileUpload />
         </section>
 
@@ -38,8 +38,7 @@ function App() {
 
         <section id="budget" className="app-section">
           <h2>Set Budget Limits</h2>
-          <p>Set category-specific budget limits and track your expenses.</p>
-          {/* Placeholder for budget input */}
+          <BudgetSetting />
         </section>
       </main>
 
