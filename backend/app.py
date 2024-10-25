@@ -12,6 +12,8 @@ try:
 except:
     model = None
 
+budgets = {}
+
 def preprocess_data(df):
     """
     Preprocess the CSV data and extract relevant features.
@@ -51,6 +53,18 @@ if model is None:
 def hello():
     return "AI Financial Analyzer Backend"
 
+@app.route('/set_budget', methods=['POST'])
+def set_budget():
+    data = request.json
+    category = data['category']
+    amount = data['amount']
+    budgets[category] = amount
+    return jsonify({"message": "Budget set successfully"}), 200
+
+@app.route('/get_budgets', methods=['GET'])
+def get_budgets():
+    return jsonify(budgets), 200
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -69,7 +83,14 @@ def upload_file():
         df['Category'] = predictions
         
         categorized_expenses = df.to_dict(orient='records')
-        return jsonify(categorized_expenses), 200
+        
+        # Check budget alerts
+        alerts = []
+        for category, spent in df.groupby('Category')['Amount'].sum().items():
+            if category in budgets and spent > budgets[category]:
+                alerts.append(f"Budget exceeded for {category}: Spent ${spent:.2f}, Budget ${budgets[category]:.2f}")
+        
+        return jsonify({"expenses": categorized_expenses, "alerts": alerts}), 200
     
     return 'Invalid file type', 400
 

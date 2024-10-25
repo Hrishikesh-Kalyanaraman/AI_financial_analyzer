@@ -6,12 +6,14 @@ function FileUpload() {
   const [response, setResponse] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [fileName, setFileName] = useState('No file selected');
+  const [alerts, setAlerts] = useState([]);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
     setFileName(selectedFile ? selectedFile.name : 'No file selected');
     setResponse(null);
+    setAlerts([]);
   };
 
   const handleUpload = async () => {
@@ -24,7 +26,8 @@ function FileUpload() {
       const res = await axios.post('http://localhost:5000/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      setResponse(res.data);
+      setResponse(res.data.expenses);
+      setAlerts(res.data.alerts);
     } catch (err) {
       console.error(err);
     } finally {
@@ -75,6 +78,15 @@ function FileUpload() {
                 <strong>Amount:</strong> ${expense.Amount.toFixed(2)}<br />
                 <strong>Category:</strong> {expense.Category}
               </div>
+            ))}
+          </div>
+        )}
+
+        {alerts.length > 0 && (
+          <div style={{ marginTop: '20px', backgroundColor: '#ffcccc', padding: '15px', borderRadius: '8px' }}>
+            <h3>Budget Alerts</h3>
+            {alerts.map((alert, index) => (
+              <p key={index}>{alert}</p>
             ))}
           </div>
         )}
