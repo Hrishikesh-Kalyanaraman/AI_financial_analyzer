@@ -1,9 +1,12 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 import joblib
+import io
+from fpdf import FPDF
+import openpyxl
 
 app = Flask(__name__)
 
@@ -78,7 +81,6 @@ def upload_file():
         
         descriptions = df['Description']
         X_transformed = vectorizer.transform(descriptions)
-        
         predictions = model.predict(X_transformed)
         df['Category'] = predictions
         
@@ -93,6 +95,31 @@ def upload_file():
         return jsonify({"expenses": categorized_expenses, "alerts": alerts}), 200
     
     return 'Invalid file type', 400
+
+@app.route('/export/pdf', methods=['GET'])
+def export_pdf():
+    df = pd.DataFrame(budgets.items(), columns=['Category', 'Budget'])
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt="Budget Report", ln=True, align='C')
+
+    for idx, row in df.iterrows():
+        pdf.cell(200, 10, txt=f"{row['Category']}: ${row['Budget']}", ln=True, align='L')
+    
+    output = io.BytesIO()
+    pdf.output(output)
+    output.seek(0)
+    return send_file(output, as_attachment=True, download_name="budget_report.pdf")
+
+@app.route('/export/excel', methods=['GET'])
+def export_excel():
+    df = pd.DataFrame(budgets.items(), columns=['Category', 'Budget'])
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Budget')
+    output.seek(0)
+    return send_file(output, as_attachment=True, download_name="budget_report.xlsx")
 
 if __name__ == '__main__':
     app.run(debug=True)

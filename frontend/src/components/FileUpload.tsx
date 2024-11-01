@@ -35,6 +35,30 @@ function FileUpload() {
     }
   };
 
+  const downloadPDF = async () => {
+    const response = await axios.get('http://localhost:5000/export/pdf', {
+      responseType: 'blob',
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'budget_report.pdf');
+    document.body.appendChild(link);
+    link.click();
+  };
+
+  const downloadExcel = async () => {
+    const response = await axios.get('http://localhost:5000/export/excel', {
+      responseType: 'blob',
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'budget_report.xlsx');
+    document.body.appendChild(link);
+    link.click();
+  };
+
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f4f4f4' }}>
       <div style={{ padding: '20px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', maxWidth: '600px', width: '100%' }}>
@@ -63,12 +87,6 @@ function FileUpload() {
           {isLoading ? 'Uploading...' : 'Upload'}
         </button>
 
-        {isLoading && (
-          <div style={{ margin: '20px 0', backgroundColor: '#e0e0e0', borderRadius: '4px', overflow: 'hidden' }}>
-            <div style={{ width: '100%', height: '8px', backgroundColor: '#007bff', animation: 'progress 2s linear infinite' }}></div>
-          </div>
-        )}
-
         {response && (
           <div style={{ marginTop: '20px', backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '8px', border: '1px solid #ddd' }}>
             <h3>Expense Categories</h3>
@@ -84,12 +102,43 @@ function FileUpload() {
 
         {alerts.length > 0 && (
           <div style={{ marginTop: '20px', backgroundColor: '#ffcccc', padding: '15px', borderRadius: '8px' }}>
-            <h3>Budget Alerts</h3>
+            <h3>Alerts</h3>
             {alerts.map((alert, index) => (
-              <p key={index}>{alert}</p>
+              <div key={index} style={{ marginBottom: '10px', color: '#d9534f' }}>
+                {alert}
+              </div>
             ))}
           </div>
         )}
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+          <button 
+            onClick={downloadPDF} 
+            style={{
+              padding: '10px 15px', 
+              backgroundColor: '#28a745', 
+              color: '#fff', 
+              border: 'none', 
+              borderRadius: '4px', 
+              cursor: 'pointer', 
+              width: '48%'
+            }}>
+            Download PDF Report
+          </button>
+          <button 
+            onClick={downloadExcel} 
+            style={{
+              padding: '10px 15px', 
+              backgroundColor: '#007bff', 
+              color: '#fff', 
+              border: 'none', 
+              borderRadius: '4px', 
+              cursor: 'pointer', 
+              width: '48%'
+            }}>
+            Download Excel Report
+          </button>
+        </div>
       </div>
     </div>
   );
