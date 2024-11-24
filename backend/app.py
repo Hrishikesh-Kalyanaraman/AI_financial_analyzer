@@ -12,8 +12,9 @@ app = Flask(__name__)
 
 try:
     model = joblib.load('expense_categorizer.pkl')
+    vectorizer = joblib.load('vectorizer.pkl')
 except:
-    model = None
+    model, vectorizer = None, None
 
 budgets = {}
 
@@ -49,7 +50,7 @@ def train_model():
     
     return clf, vectorizer
 
-if model is None:
+if model is None or vectorizer is None:
     model, vectorizer = train_model()
 
 @app.route('/')
@@ -59,10 +60,19 @@ def hello():
 @app.route('/set_budget', methods=['POST'])
 def set_budget():
     data = request.json
-    category = data['category']
-    amount = data['amount']
+    category = data.get('category')
+    amount = data.get('amount')
+
+    if not category or amount is None:
+        return jsonify({"error": "Invalid data. Category and amount are required."}), 400
+    
     budgets[category] = amount
-    return jsonify({"message": "Budget set successfully"}), 200
+    return jsonify({"message": f"Budget set successfully for {category}: ${amount:.2f}"}), 200
+
+@app.route('/reset_budgets', methods=['POST'])
+def reset_budgets():
+    budgets.clear()
+    return jsonify({"message": "All budgets have been reset."}), 200
 
 @app.route('/get_budgets', methods=['GET'])
 def get_budgets():
@@ -71,10 +81,10 @@ def get_budgets():
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
-        return 'No file part', 400
+        return jsonify({"error": "No file part provided."}), 400
     file = request.files['file']
     if file.filename == '':
-        return 'No selected file', 400
+        return jsonify({"error": "No file selected."}), 400
     if file and file.filename.endswith('.csv'):
         df = pd.read_csv(file)
         df = preprocess_data(df)
@@ -89,12 +99,30 @@ def upload_file():
         # Check budget alerts
         alerts = []
         for category, spent in df.groupby('Category')['Amount'].sum().items():
-            if category in budgets and spent > budgets[category]:
-                alerts.append(f"Budget exceeded for {category}: Spent ${spent:.2f}, Budget ${budgets[category]:.2f}")
+            if category in budgets:
+                percentage = (spent / budgets[category]) * 100
+                if spent > budgets[category]:
+                    alerts.append(f"Budget exceeded for {category}: Spent ${spent:.2f}, Budget ${budgets[category]:.2f} ({percentage:.1f}% of budget)")
         
         return jsonify({"expenses": categorized_expenses, "alerts": alerts}), 200
     
-    return 'Invalid file type', 400
+    return jsonify({"error": "Invalid file type. Only CSV files are accepted."}), 400
+
+@app.route('/expense_insights', methods=['GET'])
+def expense_insights():
+    if not budgets:
+        return jsonify({"error": "No budgets set. Please add budgets first."}), 400
+
+    insights = {category: {"budget": budget, "spent": 0} for category, budget in budgets.items()}
+    for category, spent in df.groupby('Category')['Amount'].sum().items():
+        if category in insights:
+            insights[category]["spent"] = spent
+    
+    for category, data in insights.items():
+        data["remaining"] = data["budget"] - data["spent"]
+        data["percentage_spent"] = (data["spent"] / data["budget"]) * 100 if data["budget"] > 0 else 0
+
+    return jsonify(insights), 200
 
 @app.route('/export/pdf', methods=['GET'])
 def export_pdf():
