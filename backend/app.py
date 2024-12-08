@@ -7,9 +7,13 @@ import joblib
 import io
 from fpdf import FPDF
 import openpyxl
+import matplotlib.pyplot as plt
+import seaborn as sns
+import os
 
 app = Flask(__name__)
 
+# Load or initialize the model and vectorizer
 try:
     model = joblib.load('expense_categorizer.pkl')
     vectorizer = joblib.load('vectorizer.pkl')
@@ -17,6 +21,7 @@ except:
     model, vectorizer = None, None
 
 budgets = {}
+expense_summary = None
 
 def preprocess_data(df):
     """
@@ -80,6 +85,8 @@ def get_budgets():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    global expense_summary
+
     if 'file' not in request.files:
         return jsonify({"error": "No file part provided."}), 400
     file = request.files['file']
@@ -94,6 +101,7 @@ def upload_file():
         predictions = model.predict(X_transformed)
         df['Category'] = predictions
         
+        expense_summary = df.groupby('Category')['Amount'].sum().reset_index()
         categorized_expenses = df.to_dict(orient='records')
         
         # Check budget alerts
@@ -113,8 +121,13 @@ def expense_insights():
     if not budgets:
         return jsonify({"error": "No budgets set. Please add budgets first."}), 400
 
+    if expense_summary is None:
+        return jsonify({"error": "No expense data uploaded yet."}), 400
+
     insights = {category: {"budget": budget, "spent": 0} for category, budget in budgets.items()}
-    for category, spent in df.groupby('Category')['Amount'].sum().items():
+    for _, row in expense_summary.iterrows():
+        category = row['Category']
+        spent = row['Amount']
         if category in insights:
             insights[category]["spent"] = spent
     
@@ -126,28 +139,52 @@ def expense_insights():
 
 @app.route('/export/pdf', methods=['GET'])
 def export_pdf():
-    df = pd.DataFrame(budgets.items(), columns=['Category', 'Budget'])
+    if expense_summary is None:
+        return jsonify({"error": "No expense data available to export."}), 400
+
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
     pdf.cell(200, 10, txt="Budget Report", ln=True, align='C')
 
-    for idx, row in df.iterrows():
-        pdf.cell(200, 10, txt=f"{row['Category']}: ${row['Budget']}", ln=True, align='L')
-    
+    for _, row in expense_summary.iterrows():
+        pdf.cell(200, 10, txt=f"{row['Category']}: ${row['Amount']:.2f}", ln=True, align='L')
+
     output = io.BytesIO()
     pdf.output(output)
     output.seek(0)
-    return send_file(output, as_attachment=True, download_name="budget_report.pdf")
+    return send_file(output, as_attachment=True, download_name="expense_summary.pdf")
 
 @app.route('/export/excel', methods=['GET'])
 def export_excel():
-    df = pd.DataFrame(budgets.items(), columns=['Category', 'Budget'])
+    if expense_summary is None:
+        return jsonify({"error": "No expense data available to export."}), 400
+
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False, sheet_name='Budget')
+        expense_summary.to_excel(writer, index=False, sheet_name='Expenses')
+        budgets_df = pd.DataFrame(budgets.items(), columns=['Category', 'Budget'])
+        budgets_df.to_excel(writer, index=False, sheet_name='Budgets')
     output.seek(0)
-    return send_file(output, as_attachment=True, download_name="budget_report.xlsx")
+    return send_file(output, as_attachment=True, download_name="expense_summary.xlsx")
+
+@app.route('/visualize', methods=['GET'])
+def visualize_expenses():
+    if expense_summary is None:
+        return jsonify({"error": "No expense data available for visualization."}), 400
+
+    output = io.BytesIO()
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x='Category', y='Amount', data=expense_summary)
+    plt.title('Expense Summary by Category')
+    plt.xlabel('Category')
+    plt.ylabel('Amount')
+    plt.tight_layout()
+    plt.savefig(output, format='png')
+    output.seek(0)
+    return send_file(output, mimetype='image/png', as_attachment=True, download_name="expense_visualization.png")
 
 if __name__ == '__main__':
+    # Ensure directories for storing models and visualizations exist
+    os.makedirs(os.path.dirname('models/'), exist_ok=True)
     app.run(debug=True)
