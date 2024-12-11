@@ -7,8 +7,7 @@ import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Lege
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-// const API_KEY = ""
-// const API_KEY = "";
+const API_KEY = "";
 
 function App() {
   const [budget, setBudget] = useState([
@@ -20,11 +19,9 @@ function App() {
     { name: "Miscellaneous", budget: 50, spent: 0, status: "under budget" },
   ]);
 
-  // Update the budget with expenses from CSV
   const updateBudget = (transactions) => {
     const categorySpending = {};
 
-    // Calculate total spending per category
     transactions.forEach((transaction) => {
       if (transaction.type === "Expense") {
         if (categorySpending[transaction.category]) {
@@ -35,25 +32,22 @@ function App() {
       }
     });
 
-    // Update the budget state with the calculated spending
     setBudget((prevBudget) => {
       return prevBudget.map((category) => {
         const spentAmount = categorySpending[category.name] || 0;
         return {
           ...category,
           spent: spentAmount,
-          status: spentAmount <= category.budget ? "under budget" : "over budget", // Update status
+          status: spentAmount <= category.budget ? "under budget" : "over budget",
         };
       });
     });
   };
 
-  // Handle data received from FileUpload
   const handleFileData = (fileData) => {
-    updateBudget(fileData); // Call updateBudget with parsed file data
+    updateBudget(fileData);
   };
 
-  // Prepare data for the bar chart
   const chartData = {
     labels: budget.map((category) => category.name),
     datasets: [
@@ -76,12 +70,10 @@ function App() {
     },
   };
 
-
-
   const [input, setInput] = useState("");
     const [messages, setMessages] = useState([
         {
-            message: "Hello I am ChatGPT",
+            message: "Hello, I am your financial assistant, how can I help you today?",
             sender: "ChatGPT"
         }
     ]);
@@ -108,7 +100,6 @@ function App() {
 
 
   async function processMessageToChatGPT(chatMessages){
-    // const API_KEY = "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     let apiMessages = chatMessages.map((messageObject)=>{
         let role="";
         if(messageObject.sender === "ChatGPT"){
@@ -164,18 +155,11 @@ function App() {
 
 }
 
-
-
-
-
-
-
   return (
     <div className="App">
-      <h1>Financial Tracker</h1>
-      <FileUpload onFileData={handleFileData} /> {/* Pass handleFileData as a prop */}
+      <h1>Financial Tracking Assistant</h1>
+      <FileUpload onFileData={handleFileData} />
 
-      {/* Render the bar chart */}
       <div style={{ width: '50%', margin: '20px auto' }}>
         <Bar data={chartData} options={chartOptions} />
       </div>
@@ -195,20 +179,101 @@ function App() {
 
 
 
-
-    <div className="container">
-      <div className="response-area">
-                {messages.map((message, index) => {
-                    return(
-                        <div className={message.sender==="ChatGPT" ? 'gpt-message message' : 'user-message message'}>{message.message}</div>
-                    );
-                })}
-            </div>
-      <div className="prompt-area">
-        <input type="text" placeholder="Send a message..." value={input} onChange={handleChange}/>
-        <button className="submit" type="submit" onClick={handleSend}>Send</button>
+<div
+  className="chat-overlay"
+  style={{
+    position: 'fixed',
+    bottom: '20px',
+    right: '20px',
+    width: '350px',
+    fontFamily: 'Arial, sans-serif',
+    border: '1px solid #ccc',
+    borderRadius: '12px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+    backgroundColor: '#f9f9f9',
+    overflow: 'hidden',
+    zIndex: 1000,
+  }}
+>
+  <div
+    className="response-area"
+    style={{
+      maxHeight: '500px',
+      overflowY: 'auto',
+      padding: '10px',
+      backgroundColor: '#fff',
+      borderRadius: '12px 12px 0 0',
+      boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.1)',
+    }}
+  >
+    {messages.map((message, index) => (
+      <div
+        key={index}
+        className={message.sender === "ChatGPT" ? 'gpt-message message' : 'user-message message'}
+        style={{
+          margin: '10px 0',
+          padding: '10px',
+          borderRadius: '8px',
+          color: message.sender === "ChatGPT" ? '#fff' : '#000',
+          backgroundColor: message.sender === "ChatGPT" ? '#007bff' : '#e1e1e1',
+          textAlign: message.sender === "ChatGPT" ? 'left' : 'right',
+          maxWidth: '80%',
+          alignSelf: message.sender === "ChatGPT" ? 'flex-start' : 'flex-end',
+        }}
+      >
+        {message.message}
       </div>
-		</div>
+    ))}
+  </div>
+  <div
+    className="prompt-area"
+    style={{
+      display: 'flex',
+      padding: '10px',
+      gap: '10px',
+      borderTop: '1px solid #ccc',
+      backgroundColor: '#f9f9f9',
+      borderRadius: '0 0 12px 12px',
+    }}
+  >
+    <input
+      type="text"
+      placeholder="Send a message..."
+      value={input}
+      onChange={handleChange}
+      style={{
+        flex: 1,
+        padding: '10px',
+        borderRadius: '8px',
+        border: '1px solid #ccc',
+        boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.1)',
+        outline: 'none',
+        fontSize: '14px',
+      }}
+    />
+    <button
+      className="submit"
+      type="submit"
+      onClick={handleSend}
+      style={{
+        padding: '10px 20px',
+        backgroundColor: '#007bff',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '8px',
+        cursor: 'pointer',
+        fontSize: '14px',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+        transition: 'background-color 0.3s ease',
+      }}
+      onMouseOver={(e) => (e.target.style.backgroundColor = '#0056b3')}
+      onMouseOut={(e) => (e.target.style.backgroundColor = '#007bff')}
+    >
+      Send
+    </button>
+  </div>
+</div>
+
       
     </div>
   );

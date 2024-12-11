@@ -22,7 +22,6 @@ const FileUpload = ({ onFileData }) => {
           setHeaders(keys);
           setData(parsedData);
 
-          // Calculate income, expenses, and savings
           let income = 0;
           let expenses = 0;
 
@@ -35,86 +34,86 @@ const FileUpload = ({ onFileData }) => {
             }
           });
 
-          // Calculate savings as income - expenses
           const savingsAmount = income + expenses;
 
-          // Update state for totals
           setTotalIncome(income);
           setTotalExpenses(expenses);
           setSavings(savingsAmount);
 
-          // Transform the data to match the expected format for the parent component
           const transactions = parsedData.map((row) => ({
             category: row.Category || "Other",
             type: row.Type || "Expense",
             amount: parseFloat(row.Amount) || 0,
           }));
 
-          // Send parsed transactions back to the parent component
-          onFileData(transactions); // Pass data to the parent component
+          onFileData(transactions);
         },
       });
     }
   };
 
   return (
-    <div style={{ margin: "20px auto", maxWidth: "800px", textAlign: "center", backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
-      <h2 style={{ fontSize: '28px', color: '#333', marginBottom: '20px' }}>Upload Financial Data</h2>
+    <div style={{ margin: "20px auto", maxWidth: "800px", textAlign: "center", backgroundColor: '#fefefe', padding: '30px', borderRadius: '12px', boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)', fontFamily: 'Arial, sans-serif' }}>
+      <h2 style={{ fontSize: '30px', color: '#444', marginBottom: '25px', fontWeight: '600' }}>Upload Your Financial Data</h2>
       <input
         type="file"
         accept=".csv"
         onChange={handleFileChange}
-        style={{ padding: "10px", fontSize: "16px", border: "1px solid #ccc", borderRadius: '4px', marginBottom: "20px" }}
+        style={{ padding: "12px", fontSize: "16px", border: "1px solid #ccc", borderRadius: '6px', marginBottom: "20px", width: "100%", boxSizing: 'border-box' }}
       />
-
+  
       {data.length > 0 && (
         <>
           <div
             style={{
               display: "flex",
-              justifyContent: "space-around",
-              backgroundColor: "#f5f5f5",
+              justifyContent: "space-between",
+              backgroundColor: "#f7f9fc",
               padding: "20px",
-              borderRadius: "8px",
-              marginBottom: "20px",
+              borderRadius: "10px",
+              marginBottom: "25px",
+              boxShadow: "0 3px 6px rgba(0, 0, 0, 0.1)",
             }}
           >
-            <div>
-              <h3>Total Income</h3>
-              <p style={{ color: "green", fontSize: "18px", fontWeight: "bold" }}>${totalIncome.toFixed(2)}</p>
+            <div style={{ textAlign: 'center' }}>
+              <h3 style={{ fontSize: '18px', marginBottom: '10px' }}>Total Income</h3>
+              <p style={{ color: "green", fontSize: "20px", fontWeight: "bold" }}>${totalIncome.toFixed(2)}</p>
             </div>
-            <div>
-              <h3>Total Expenses</h3>
-              <p style={{ color: "red", fontSize: "18px", fontWeight: "bold" }}>${(-1*totalExpenses).toFixed(2)}</p>
+            <div style={{ textAlign: 'center' }}>
+              <h3 style={{ fontSize: '18px', marginBottom: '10px' }}>Total Expenses</h3>
+              <p style={{ color: "red", fontSize: "20px", fontWeight: "bold" }}>${(-1 * totalExpenses).toFixed(2)}</p>
             </div>
-            <div>
-              <h3>Savings</h3>
-              <p style={{ color: "#333", fontSize: "18px", fontWeight: "bold" }}>${savings.toFixed(2)}</p>
+            <div style={{ textAlign: 'center' }}>
+              <h3 style={{ fontSize: '18px', marginBottom: '10px' }}>Savings</h3>
+              <p style={{ color: "#333", fontSize: "20px", fontWeight: "bold" }}>${savings.toFixed(2)}</p>
             </div>
           </div>
-
+  
           {alerts.length > 0 && (
             <div
               style={{
-                backgroundColor: "#f8d7da",
-                padding: "10px",
-                borderRadius: "8px",
-                color: "#721c24",
-                marginBottom: "20px",
+                backgroundColor: "#fff5f5",
+                padding: "15px",
+                borderRadius: "10px",
+                color: "#d32f2f",
+                marginBottom: "25px",
+                border: "1px solid #f8d7da",
               }}
             >
-              <h3>Budget Alerts</h3>
+              <h3 style={{ fontSize: '20px', marginBottom: '10px', fontWeight: '500' }}>Budget Alerts</h3>
               {alerts.map((alert, index) => (
-                <p key={index}>{alert}</p>
+                <p key={index} style={{ fontSize: '16px', margin: '5px 0' }}>{alert}</p>
               ))}
             </div>
           )}
-
+  
           <table
             style={{
               width: "100%",
               borderCollapse: "collapse",
               margin: "0 auto",
+              borderRadius: '8px',
+              overflow: 'hidden',
               boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
             }}
           >
@@ -125,11 +124,12 @@ const FileUpload = ({ onFileData }) => {
                     key={index}
                     style={{
                       border: "1px solid #ddd",
-                      padding: "10px",
-                      backgroundColor: "#4CAF50",
+                      padding: "12px",
+                      backgroundColor: "#007bff",
                       color: "white",
                       textAlign: "center",
-                      fontSize: "16px"
+                      fontSize: "16px",
+                      fontWeight: '500',
                     }}
                   >
                     {header}
@@ -145,10 +145,10 @@ const FileUpload = ({ onFileData }) => {
                       key={colIndex}
                       style={{
                         border: "1px solid #ddd",
-                        padding: "8px",
-                        textAlign: "left",
+                        padding: "10px",
+                        textAlign: "center",
                         fontSize: "14px",
-                        color: "#333",
+                        color: "#555",
                       }}
                     >
                       {row[header]}
@@ -158,7 +158,7 @@ const FileUpload = ({ onFileData }) => {
               ))}
             </tbody>
           </table>
-
+  
           <ExportReport
             data={data}
             totalIncome={totalIncome}
@@ -169,6 +169,10 @@ const FileUpload = ({ onFileData }) => {
       )}
     </div>
   );
+  
+
+
+
 };
 
 export default FileUpload;

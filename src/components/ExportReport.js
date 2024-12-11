@@ -15,7 +15,7 @@ const ExportReport = ({ data, totalIncome, totalExpenses, savings }) => {
     const rows = data.map((row) => [
         row.Date || "N/A", 
         row.Category || "N/A", 
-        row.Description || "N/A", 
+        row.Type || "N/A", 
         row.Amount || "0"
     ]);
     
